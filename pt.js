@@ -61,19 +61,28 @@ function requestAlertDraft(draft) {
 
 const tracking = async () => {
 	
-	let tokenID='0x07663837218a003e66310a01596af4bf4e44623d'; //rUSD token
+	//let tokenID='0x07663837218a003e66310a01596af4bf4e44623d'; //rUSD token
 	// create the draft before hand
+	
 	const draftQuote = {
-	  host: 'api.pancakeswap.info',
-	  path: '/api/v2/tokens/' + tokenID,
-	  method: 'GET',
+	  host: 'api.livecoinwatch.com',
+	  path: '/coins/single',
+	  method: 'POST',
+	  headers: {
+			'content-type': 'application/json',
+			'x-api-key': '<YOUR_API_KEY>'    
+		  },
+	  payload: JSON.stringify({    currency: 'USD',    code: 'RUSD',    meta: true  }),
 	  timeout: 90000
 	};
-
 	
 	let dataPrice = await requestAlertDraft(draftQuote);
-	let tokenName = dataPrice.data.name;
-	let tokenPrice = Math.floor(dataPrice.data.price * 1000)/1000 ;
+	
+	//console.log(dataPrice);
+	
+
+	let tokenName = dataPrice.name;
+	let tokenPrice = Math.floor(dataPrice.rate * 1000)/1000 ;
 	console.log(tokenName + " Price : " + tokenPrice);
 	
 	if (tokenPrice <0.95) {// criteria matched to send
@@ -83,7 +92,7 @@ const tracking = async () => {
 		  path: '/api/notify?message=' + message,
 		  method: 'POST',
 		  headers: {
-			'Authorization': 'Bearer <your line notify access token>',
+			'Authorization': 'Bearer <your line notify token>',
 			'content-type' : 'application/x-www-form-urlencoded'        
 		  },
 		  timeout: 90000
@@ -91,6 +100,7 @@ const tracking = async () => {
 		let dataNotification = await requestAlertDraft(draftNotification);
 		//console.log("Alert Sent");
 	}
+	
 } 
 
 const job = new CronJob(cronExpression, function () {
